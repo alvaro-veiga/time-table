@@ -1,6 +1,9 @@
 from rest_framework import viewsets
 from .models import Sala, Professor, Disciplina, Horario, Alocacao
 from .serializers import SalaSerializer, ProfessorSerializer, DisciplinaSerializer, HorarioSerializer, AlocacaoSerializer
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .services.scheduling import agendar_tabela
 
 class SalaViewSet(viewsets.ModelViewSet):
     queryset = Sala.objects.all()
@@ -21,3 +24,13 @@ class HorarioViewSet(viewsets.ModelViewSet):
 class AlocacaoViewSet(viewsets.ModelViewSet):
     queryset = Alocacao.objects.all()
     serializer_class = AlocacaoSerializer
+
+
+
+@api_view(['POST'])
+def iniciar_agendamento(request):
+    sucesso = agendar_tabela()
+    if sucesso:
+        return Response({'status': 'Agendamento realizado com sucesso.'})
+    else:
+        return Response({'status': 'Não foi possível realizar o agendamento.'}, status=400)
